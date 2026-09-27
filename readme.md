@@ -1,6 +1,6 @@
 # FlowForge: The Factory Optimization Game 
 
-**Watch the Youtube Demo Video** => 
+**Watch the Youtube Demo Video** => https://www.youtube.com/watch?v=4-MvPp1RSe4
 
 Place conveyor belts. Route packages. Survive the surge. Learn systems thinking through hands-on factory puzzles.
 
