@@ -4,7 +4,7 @@
 
 Place conveyor belts. Route packages. Survive the surge. Learn systems thinking through hands-on factory puzzles.
 
-FlowForge is a browser-based educational puzzle game that teaches factory operations concepts — flow, bottlenecks, conditional routing, and load balancing — through short, focused conveyor-building levels. Built for the IBM BOB 2.0 Hackathon.
+FlowForge is a browser-based educational puzzle game that teaches factory operations concepts such as flow, bottlenecks, conditional routing, and load balancing through short, focused conveyor-building levels. Built for the IBM BOB 2.0 Hackathon.
 
 ## How to Play
 
