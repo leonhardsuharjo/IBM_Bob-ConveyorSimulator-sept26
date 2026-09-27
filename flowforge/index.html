@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowForge — The Factory Optimization Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===================================================
+     TITLE SCREEN
+=================================================== -->
+<div id="screen-title" class="screen active">
+  <div style="text-align:center;">
+    <div class="title-logo">Flow<span>Forge</span></div>
+    <div class="title-sub">THE FACTORY OPTIMIZATION GAME</div>
+    <div style="margin-bottom:48px;color:var(--muted);font-size:0.85rem;max-width:380px;line-height:1.6;">
+      Place conveyor belts. Route packages. Survive the surge.<br>
+      Learn systems thinking through hands-on factory puzzles.
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button class="btn btn-primary" id="btn-start" style="font-size:1.05rem;padding:14px 36px;">
+        ▶ &nbsp; Play
+      </button>
+      <button class="btn btn-secondary" id="btn-title-levelselect">
+        Level Select
+      </button>
+    </div>
+    <div style="margin-top:60px;color:var(--muted);font-size:0.78rem;line-height:2;">
+      <strong style="color:var(--text);">How to play:</strong> &nbsp; Place belts on the grid → Press Run → Watch the packages flow<br>
+      <kbd style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:0.78rem;">R</kbd> rotate &nbsp;|&nbsp;
+      <kbd style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:0.78rem;">Space</kbd> run/pause &nbsp;|&nbsp;
+      <kbd style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:0.78rem;">Right-click</kbd> erase
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     LEVEL SELECT SCREEN
+=================================================== -->
+<div id="screen-levelselect" class="screen">
+  <div class="levelselect-header">
+    <h1>Choose Your Mission</h1>
+    <p>Complete levels to unlock the next challenge. Stars carry over between runs.</p>
+  </div>
+  <div class="level-grid">
+
+    <div class="level-card" data-level="1">
+      <div class="level-num">Level 01</div>
+      <div class="level-title">Straight Line Basics</div>
+      <div class="level-desc">Connect the input to the output. Master belt placement and flow direction.</div>
+      <div class="level-stars">
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+      </div>
+    </div>
+
+    <div class="level-card" data-level="2">
+      <div class="level-num">Level 02</div>
+      <div class="level-title">The Bottleneck</div>
+      <div class="level-desc">A narrow path causes congestion. Add buffers or parallel lanes to relieve the jam.</div>
+      <div class="level-stars">
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+      </div>
+    </div>
+
+    <div class="level-card" data-level="3">
+      <div class="level-num">Level 03</div>
+      <div class="level-title">Fragile Cargo</div>
+      <div class="level-desc">Route fragile packages onto a safe path using a Sorter. Zero breakages required.</div>
+      <div class="level-stars">
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+      </div>
+    </div>
+
+    <div class="level-card" data-level="4">
+      <div class="level-num">Level 04</div>
+      <div class="level-title">Peak Load Challenge</div>
+      <div class="level-desc">Package volume triples mid-level. Build a resilient system that survives the surge.</div>
+      <div class="level-stars">
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+      </div>
+    </div>
+
+  </div>
+  <div style="margin-top:28px;">
+    <button class="btn btn-secondary btn-sm" id="btn-levelselect-back">← Back to Title</button>
+  </div>
+</div>
+
+<!-- ===================================================
+     MISSION BRIEF SCREEN
+=================================================== -->
+<div id="screen-mission" class="screen">
+  <div class="mission-card">
+    <div class="mission-header">
+      <div class="bob-avatar">👷</div>
+      <div class="mission-header-text">
+        <h2>Bob the Foreman</h2>
+        <span>Your factory mentor</span>
+      </div>
+    </div>
+    <div class="mission-title" id="mission-title">Mission Title</div>
+    <div style="font-size:0.82rem;color:var(--accent);margin-bottom:12px;" id="mission-level-num">Level 1</div>
+    <div style="font-size:0.8rem;color:var(--muted);font-style:italic;margin-bottom:12px;" id="mission-subtitle"></div>
+    <p class="mission-brief-text" id="mission-brief-text">Brief text.</p>
+    <div class="mission-goals">
+      <h4>Win Conditions</h4>
+      <div id="mission-goals-list"></div>
+    </div>
+    <div class="mission-actions">
+      <button class="btn btn-secondary" id="btn-mission-back">← Back</button>
+      <button class="btn btn-success" id="btn-mission-start">Let's Go →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     GAME SCREEN
+=================================================== -->
+<div id="screen-game" class="screen">
+
+  <!-- LEFT TOOLBAR -->
+  <div class="toolbar">
+    <div>
+      <h3>Components</h3>
+    </div>
+
+    <button class="component-btn" data-tool="BELT_STRAIGHT">
+      <span class="component-icon">➡️</span>
+      <div>
+        <div class="component-name">Straight Belt</div>
+        <div class="component-hint">Basic directional belt</div>
+      </div>
+    </button>
+
+    <button class="component-btn" data-tool="BELT_TURN">
+      <span class="component-icon">↩️</span>
+      <div>
+        <div class="component-name">Turn Belt</div>
+        <div class="component-hint">90° corner turn</div>
+      </div>
+    </button>
+
+    <button class="component-btn" data-tool="BUFFER">
+      <span class="component-icon">🗄️</span>
+      <div>
+        <div class="component-name">Buffer</div>
+        <div class="component-hint">Holds up to 4 pkgs</div>
+      </div>
+    </button>
+
+    <button class="component-btn" data-tool="SORTER">
+      <span class="component-icon">🔀</span>
+      <div>
+        <div class="component-name">Sorter</div>
+        <div class="component-hint">Routes fragile aside</div>
+      </div>
+    </button>
+
+    <button class="component-btn" data-tool="SENSOR">
+      <span class="component-icon">📡</span>
+      <div>
+        <div class="component-name">Sensor</div>
+        <div class="component-hint">Counts packages</div>
+      </div>
+    </button>
+
+    <button class="component-btn" data-tool="WEIGHT_STATION">
+      <span class="component-icon">⚖️</span>
+      <div>
+        <div class="component-name">Weight Station</div>
+        <div class="component-hint">Flags heavy packages</div>
+      </div>
+    </button>
+
+    <div class="toolbar-sep"></div>
+
+    <button class="component-btn" id="btn-erase" style="color:var(--danger);border-color:transparent;">
+      <span class="component-icon">🗑️</span>
+      <div>
+        <div class="component-name">Erase</div>
+        <div class="component-hint">Remove a component</div>
+      </div>
+    </button>
+
+    <button class="component-btn" id="btn-rotate" style="border-color:transparent;">
+      <span class="component-icon">🔄</span>
+      <div>
+        <div class="component-name">Rotate</div>
+        <div class="component-hint" id="rotate-indicator">Direction: → Right</div>
+      </div>
+    </button>
+
+    <div class="toolbar-sep"></div>
+    <div class="rotate-hint" style="font-size:0.72rem;color:var(--muted);">
+      Press <strong>R</strong> to rotate<br>
+      Right-click to erase<br>
+      <strong>Space</strong> to run/pause
+    </div>
+  </div>
+
+  <!-- MAIN GAME AREA -->
+  <div class="game-area">
+
+    <!-- HUD -->
+    <div class="hud">
+      <span class="hud-level" id="hud-level">Level 1</span>
+      <span class="hud-title" id="hud-title">Straight Line Basics</span>
+
+      <div class="hud-sep"></div>
+
+      <div class="hud-metric">
+        <span class="hud-metric-label">Delivered</span>
+        <span class="hud-metric-value" id="hud-delivered">0</span>
+      </div>
+
+      <div class="hud-metric">
+        <span class="hud-metric-label">Blocked</span>
+        <span class="hud-metric-value" id="hud-blocked">0</span>
+      </div>
+
+      <div class="hud-metric">
+        <span class="hud-metric-label">Throughput</span>
+        <span class="hud-metric-value" id="hud-throughput">0.0</span>
+      </div>
+
+      <div class="hud-sep"></div>
+
+      <!-- Spike indicator (hidden normally) -->
+      <div id="spike-indicator" style="display:none;align-items:center;gap:6px;background:rgba(243,156,18,0.15);border:1px solid var(--warning);border-radius:6px;padding:4px 10px;font-size:0.78rem;color:var(--warning);">
+        ⚡ SURGE ACTIVE
+      </div>
+
+      <span class="tick-counter" id="hud-tick">Tick 0</span>
+
+      <div class="hud-sep"></div>
+
+      <div class="hud-controls">
+        <button class="btn btn-success btn-sm" id="btn-run">▶ Run</button>
+        <button class="btn btn-secondary btn-sm" id="btn-pause" disabled>⏸ Pause</button>
+        <button class="btn btn-secondary btn-sm" id="btn-reset">↺ Reset</button>
+        <button class="hud-hint-btn" id="btn-hint">💡 Hint</button>
+        <button class="hud-hint-btn" id="btn-back-to-levels" style="color:var(--muted);">☰ Levels</button>
+      </div>
+    </div>
+
+    <!-- GRID CANVAS AREA -->
+    <div class="grid-container">
+      <canvas id="grid-canvas"></canvas>
+      <!-- Tutorial tips overlay -->
+      <div id="tutorial-tips" style="position:absolute;inset:0;pointer-events:none;"></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT INFO PANEL -->
+  <div class="info-panel">
+    <h3>Mission Goals</h3>
+    <div class="goal-progress" id="goal-progress"></div>
+
+    <div class="toolbar-sep"></div>
+    <h3>Package Types</h3>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#4a9eff;"></div>
+        N — Normal
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#f39c12;"></div>
+        F — Fragile
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#e74c3c;"></div>
+        H — Heavy
+      </div>
+    </div>
+
+    <div class="toolbar-sep"></div>
+    <h3>Tips</h3>
+    <div style="font-size:0.76rem;color:var(--muted);line-height:1.6;">
+      Packages need a continuous belt path from <strong style="color:#2ecc71;">IN</strong> to <strong style="color:#4a9eff;">OUT</strong>.<br><br>
+      Belts that face away from each other will block packages.<br><br>
+      Buffers show fill level — red = nearly full!
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================================================
+     HINT BUBBLE
+=================================================== -->
+<div id="hint-bubble" class="hint-bubble">
+  <div class="hint-bubble-header">
+    💡 Bob's Hint
+    <span class="hint-close" id="hint-close">✕</span>
+  </div>
+  <div id="hint-text">Hint text goes here.</div>
+</div>
+
+<!-- ===================================================
+     RESULTS MODAL
+=================================================== -->
+<div id="modal-results" class="modal-overlay">
+  <div class="modal slide-up">
+    <h2 id="results-level">Level 1</h2>
+    <p class="modal-subtitle" id="results-subtitle">Mission Complete</p>
+
+    <div class="stars-display">
+      <span class="star-big">⭐</span>
+      <span class="star-big">⭐</span>
+      <span class="star-big">⭐</span>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-card-label">Delivered</div>
+        <div class="metric-card-value" id="results-delivered">0/0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card-label">Delivery Rate</div>
+        <div class="metric-card-value" id="results-delivery-pct">0%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card-label">Blocked</div>
+        <div class="metric-card-value" id="results-blocked">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card-label">Ticks Used</div>
+        <div class="metric-card-value" id="results-ticks">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card-label">Throughput</div>
+        <div class="metric-card-value" id="results-throughput">0</div>
+      </div>
+      <div class="metric-card" id="results-broken-row">
+        <div class="metric-card-label">Broken Fragile</div>
+        <div class="metric-card-value" id="results-broken">0</div>
+      </div>
+    </div>
+
+    <div class="coach-report">
+      <div class="coach-report-header">
+        <div class="bob-avatar-sm">👷</div>
+        <div>
+          <div class="coach-report-name">Bob the Foreman</div>
+          <div class="coach-report-role">Factory Coach</div>
+        </div>
+      </div>
+      <p class="coach-report-text" id="coach-report-text">
+        Great run! Here's what I noticed…
+      </p>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" id="btn-results-levelselect">☰ Levels</button>
+      <button class="btn btn-secondary btn-sm" id="btn-retry">↺ Retry</button>
+      <button class="btn btn-primary btn-sm" id="btn-next-level">Next Level →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="js/components.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/grid.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
